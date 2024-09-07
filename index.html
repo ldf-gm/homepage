@@ -11,13 +11,15 @@
             height: 100%;
             font-family: Arial, sans-serif;
             text-align: center;
+            overflow: hidden;
+            background-color: #fff0d1;
         }
         .grid-container {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100vh;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(20px, 1fr));
             grid-auto-rows: 20px;
@@ -76,10 +78,15 @@
             height: 12px;
             border-radius: 50%;
             margin-left: 5px;
+            cursor: pointer;
         }
         .close { background-color: #ff5f56; }
         .minimize { background-color: #ffbd2e; }
         .maximize { background-color: #27c93f; }
+        .lens { 
+            background-color: #00501e; 
+            text-decoration: none;
+        }
         .window-content {
             padding: 20px;
         }
@@ -111,8 +118,58 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transform: translateY(-2px);
         }
-        .window-content iframe {
-            border-radius: 0 0 10px 10px;
+        .spotify-content .window-content {
+            padding: 10;
+            overflow: hidden;
+        }
+        .spotify-content iframe {
+            display: block;
+            width: 100%;
+            height: 352px;
+            border: none;
+        }
+        @media screen and (max-width: 768px) {
+            body {
+                overflow-y: auto;
+            }
+            .grid-container {
+                display: none;
+            }
+            .content, .spotify-content {
+                position: static;
+                width: 90%;
+                max-width: none;
+                margin: 20px auto;
+                transform: none;
+            }
+            .window-frame {
+                cursor: default;
+            }
+            .window-content {
+                padding: 10px;
+            }
+            .floating-background {
+                margin: 10px 0;
+            }
+            .email-button, .website-button {
+                display: inline-block;
+                width: 30%;
+                padding: 5px 10px;
+                margin: 5px;
+                font-size: 12px;
+            }
+            .button-container {
+                text-align: center;
+            }
+            body {
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            h2 {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -126,6 +183,7 @@
                 <div class="window-button minimize"></div>
                 <div class="window-button maximize"></div>
                 <div class="window-button close"></div>
+                <a href="https://hey.xyz/u/ldf_gm" class="window-button lens" title="Lens Profile"></a>
             </div>
         </div>
         <div class="window-content">
@@ -148,7 +206,12 @@
             </div>
             <main>
                 <br>
-                <a href="https://www.twitter.com/ldf_gm" class="website-button">Twitter</a> ☺ <a href="https://hey.xyz/u/ldf_gm" class="website-button">Lens</a> ☺ <a href="https://warpcast.com/ldf-gm" class="website-button">Warpcast</a>  ☺ <a href="zora.co/ldf" class="website-button">Zora</a> 
+                <div class="button-container">
+                    <a href="https://www.twitter.com/ldf_gm" class="website-button">Twitter</a>
+                    <a href="https://hey.xyz/u/ldf_gm" class="website-button">Lens</a>
+                    <a href="https://warpcast.com/ldf-gm" class="website-button">Warpcast</a>
+                    <a href="https://zora.co/ldf" class="website-button">Zora</a>
+                </div>
                 <br><br><br>
             </main>
         </div>
@@ -164,7 +227,7 @@
             </div>
         </div>
         <div class="window-content">
-            <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZEVXcUdNZ4nqJzGm?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe src="https://open.spotify.com/embed/playlist/37i9dQZEVXcUdNZ4nqJzGm?utm_source=generator&theme=0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
     </div>
 
@@ -177,7 +240,16 @@
             const columns = Math.ceil(viewportWidth / cellSize);
             const rows = Math.ceil(viewportHeight / cellSize);
 
-            for (let i = 0; i < rows * columns; i++) {
+            container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+            container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+            const totalCells = columns * rows;
+
+            while (container.firstChild) {
+                container.removeChild(container.firstChild);
+            }
+
+            for (let i = 0; i < totalCells; i++) {
                 const div = document.createElement('div');
                 div.className = 'grid-item';
                 container.appendChild(div);
@@ -257,7 +329,7 @@
                 }
             }
 
-            function dragEnd() {
+            function dragEnd(e) {
                 initialX = currentX;
                 initialY = currentY;
                 isDragging = false;
@@ -268,10 +340,21 @@
             }
         }
 
-        createGrid();
-        addTrailEffect();
-        makeDraggable(document.getElementById('draggableContent'), document.getElementById('dragHandle'));
-        makeDraggable(document.getElementById('draggableSpotify'), document.getElementById('spotifyDragHandle'));
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        function initializePage() {
+            if (!isMobile()) {
+                createGrid();
+                addTrailEffect();
+                makeDraggable(document.getElementById('draggableContent'), document.getElementById('dragHandle'));
+                makeDraggable(document.getElementById('draggableSpotify'), document.getElementById('spotifyDragHandle'));
+            }
+        }
+
+        window.addEventListener('resize', createGrid);
+        window.addEventListener('load', initializePage);
     </script>
 </body>
 </html>
